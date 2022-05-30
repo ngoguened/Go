@@ -1,4 +1,4 @@
-package main
+package tree
 
 import "fmt"
 
@@ -24,7 +24,7 @@ func addNode(root *Node, val interface{}) {
 	addNode(root.left, val)
 }
 
-func main() {
+func tree() {
 	root := &Node{val: 1}
 	addNode(root, 2)
 	addNode(root, 3)
