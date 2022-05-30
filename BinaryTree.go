@@ -2,8 +2,6 @@ package main
 
 import "fmt"
 
-var val interface{}
-
 type Node struct {
 	val   interface{}
 	left  *Node
