@@ -1,7 +1,9 @@
 package dna
 
 import (
+	"fmt"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -65,6 +67,10 @@ func TestTranslate(t *testing.T) {
 		t.Errorf("STOP Identified out of alignment with Start")
 	}
 
+	os.Truncate("DNAinput.txt", 0)
+	os.Truncate("DNAoutput.txt", 0)
+	os.WriteFile("DNAinput.txt", []byte("ATGAAATTTGGGGGGGGGTTAAATTATAAAAAAAAAAAAAAAAAAAAAAAATAG"), 0666)
+	translate("DNAinput.txt")
 }
 
 func TestSearchSequence(t *testing.T) {
@@ -77,4 +83,15 @@ func TestSearchSequence(t *testing.T) {
 		t.Errorf("Found element when it should not have.")
 	}
 
+}
+
+func TestTranslateConc(t *testing.T) {
+	os.Truncate("DNAinput.txt", 0)
+	os.Truncate("DNAoutput.txt", 0)
+	os.WriteFile("DNAinput.txt", []byte(strings.Repeat("ATG", 300)), 0666)
+	translateConc("DNAinput.txt")
+	output, _ := os.ReadFile("DNAoutput.txt")
+	//Testing Prints
+	fmt.Println(output)
+	fmt.Println(len(output))
 }

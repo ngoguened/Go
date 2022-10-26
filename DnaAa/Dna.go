@@ -169,11 +169,11 @@ func sequenceToAmino(s string) (byte, error) {
 /*_______________________________________________________________________________________________________________________*/
 // Translation
 
-func translate(inputFilepath string) (*os.File, error) {
+func translateInputTidy(inputFilepath string) (string, error) {
 	// Idiomize to file
 	file, err := os.Open(inputFilepath)
 	if err != nil {
-		return nil, fmt.Errorf("file could not be read")
+		return "", fmt.Errorf("File could not be read.")
 	}
 	defer file.Close()
 
@@ -184,7 +184,18 @@ func translate(inputFilepath string) (*os.File, error) {
 	}
 
 	ds = strings.ToLower(ds)
+	return ds, nil
+}
 
+func translate(inputFilepath string) (*os.File, error) {
+	ds, err := translateInputTidy(inputFilepath)
+	if err != nil {
+		return nil, fmt.Errorf("File could not be input.")
+	}
+	return translateHelper(ds)
+}
+
+func translateHelper(ds string) (*os.File, error) {
 	//Validate sequence
 	for i := 0; i < len(ds); i++ {
 		if !validNucleotide(ds[i]) {
@@ -205,6 +216,9 @@ func translate(inputFilepath string) (*os.File, error) {
 
 	// Create output file. If filename exists, writes to existing file.
 	outputfile, err := os.OpenFile("DNAoutput.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return nil, fmt.Errorf("Output file could not be written to.")
+	}
 	defer outputfile.Close()
 
 	// Compare sequence and convert to amino
@@ -237,8 +251,27 @@ func searchSequence(inputFilepath string, q string) (bool, error) { //Must be th
 
 	for _, a := range as {
 		if a == qByte {
-			return true, nil //Found match
+			return true, nil
 		}
 	}
-	return false, nil //No match
+	return false, nil
+}
+
+/*_______________________________________________________________________________________________________________________*/
+// Translation with Concurrency
+
+// Routines seem to get stuck at write stage. Simultaneous writes lead to a deletion of a routine without writing.
+// As is, even with write fix, will be out of order.
+func translateConc(inputFilepath string) (*os.File, error) {
+	ds, err := translateInputTidy(inputFilepath)
+	if err != nil {
+		return nil, fmt.Errorf("File could not be input.")
+	}
+
+	for i := 0; i < len(ds); i = i + 3 {
+		go translateHelper(ds[i : i+3])
+		defer fmt.Println(i)
+	}
+
+	return nil, fmt.Errorf("Incomplete.")
 }
