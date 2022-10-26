@@ -231,12 +231,9 @@ func searchSequence(inputFilepath string, q string) (bool, error) { //Must be th
 		return false, fmt.Errorf("Amino input could not be read.")
 	}
 
-	translateFile, err := translate(inputFilepath)
-	if err != nil {
-		return false, fmt.Errorf("Sequence could not be translated.")
-	}
+	translate(inputFilepath)
 
-	as, err := os.ReadFile(translateFile.Name())
+	as, err := os.ReadFile("DNAoutput.txt")
 
 	for _, a := range as {
 		if a == qByte {
